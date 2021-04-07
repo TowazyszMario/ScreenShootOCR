@@ -1,6 +1,4 @@
 # ScreenShootOCR
-OCR program that is integrated with screenshoot tool
-
 depedencies:\
   Python API's:\
     xerox\
