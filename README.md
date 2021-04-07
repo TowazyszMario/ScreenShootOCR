@@ -1,5 +1,5 @@
 # ScreenShootOCR
-OCR program that is integrated with screenshoot tool\
+OCR program that is integrated with screenshoot tool
 
 depedencies:\
   Python API's:\
