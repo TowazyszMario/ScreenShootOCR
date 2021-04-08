@@ -1,3 +1,4 @@
+#!/bin/python3
 #args and system
 import sys, os, argparse
 #os.pathsep
@@ -13,7 +14,7 @@ from ScreenShooter import MakeScreenShoot
 from PIL import ImageOps, ImageFilter, ImageEnhance
 
 #Args Vars
-parser = argparse.ArgumentParser(prog=sys.argv[0], description="OCR integraded with screenshooter", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser = argparse.ArgumentParser(prog=sys.argv[0], description="OCR integraded with screenshooter", formatter_class=argparse.ArgumentDefaultsHelpFormatter, epilog="IMPORTANT COPY TO CLIPBOARD WONT WORK WITHOUT XCLIP")
 
 #add args
 parser.add_argument('--version', action='version', version='%(prog)s 0.1 pre realase')
@@ -104,8 +105,11 @@ def Rest(img, ocrOutput):
 
 	#Save to clipboard
 	if args.clipboard:
-		xerox.copy(ocrOutput, xsel=True)
-
+		try:
+			xerox.copy(ocrOutput, xsel=True)
+		except Exception as e:
+			print(e)
+			print("propably xclip is not installed!")
 #Get screenshot
 img = MakeScreenShoot(args.colour, args.opacity)
 
