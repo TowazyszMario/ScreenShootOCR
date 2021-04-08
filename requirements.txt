@@ -1,0 +1,6 @@
+pillow
+pytesseract
+screenshooter
+xerox
+pyqt5
+pyscreenshot

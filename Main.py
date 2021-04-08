@@ -5,15 +5,15 @@ import sys, os, argparse
 #Image and text libs
 import xerox
 import pytesseract
-import pyscreenshot
+import re 
+
+#screenshooter
+from ScreenShooter import MakeScreenShoot
 
 from PIL import ImageOps, ImageFilter, ImageEnhance
 
-#Screenshooter
-from pynput.mouse import Listener, Button
-
 #Args Vars
-parser = argparse.ArgumentParser(prog=sys.argv[0], description="OCR integraded with screenshooter", formatter_class=argparse.ArgumentDefaultsHelpFormatter, epilog="Treshhold technuiqes:1: THRESH_BINARY 2: THRESH_BINARY_INV 3: THRESH_TRUNC 4: THRESH_TOZERO 5: THRESH_TOZERO_INV")
+parser = argparse.ArgumentParser(prog=sys.argv[0], description="OCR integraded with screenshooter", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 #add args
 parser.add_argument('--version', action='version', version='%(prog)s 0.1 pre realase')
@@ -29,12 +29,19 @@ parser.add_argument('-sh','--sharp',action='store_true', help='enable image shar
 parser.add_argument('-sf','--sharpfactor',default=2, type=int, help='sharpering factor')
 parser.add_argument('-mb','--medianfilter',action='store_true', help='enable median filter')
 parser.add_argument('-mbi','--medianfilterintensifity',default=21, type=int, help='set median filter intensifity')
+parser.add_argument('-sv','--save', default="", type=str, help='set median filter intensifity')
+parser.add_argument('-i','--interpreter',default="", type=str, help='sends ocr result to interpteter. args works')
+parser.add_argument('-clip','--clipboard', action='store_false', help='disable copy to clipboard')
+parser.add_argument('-rfa','--regexfindall', default="", type=str, help='apply regex to output and get all containg matches')
+parser.add_argument('-rr','--regexreplace', default="", type=str, help='apply regex to output and replace matches with -rrs value')
+parser.add_argument('-rrs','--regexreplacestring', default="", type=str, help='replace with this string default: %(default)s')
+parser.add_argument('-col','--colour', default="red", type=str, help='set screen shooter colour default: %(default)s')
+parser.add_argument('-o','--opacity', default=0.2, type=float, help='set screen shooter opacity default: %(default)s')
 parser.add_argument('-p','--print',action='store_true', help='prints output')
 
 #parse them
 args = parser.parse_args()
 
-#functions
 #Image functions
 #Post Proces Image
 GreyScale = lambda img : ImageOps.grayscale(img)
@@ -48,68 +55,67 @@ def Threshold(img):
 	global args
 	return img.point(lambda p : (p > args.thresholdval)*args.thresholdmaxval)
 
-#mouse functions
-def on_click(x, y, button, pressed):
-	global sx, sy, img, listener	
-	if button != Button.left:
-		return
-
-	if pressed:
-		sx = x
-		sy = y
-		return
-	
-	#Make sure than sx < x and sy < y
-	if sx == x:
-		print("to small window!")	
-
-		exit()
-	if sy == y:
-		print("to small window!")
-		exit()
-	
-	tx = sx + x
-	ty = sy + y	
-
-	sx = (sx < x)*sx + (sx >= x)*x
-	sy = (sy < y)*sy + (sy >= y)*y
-
-	x = tx - sx
-	y = ty - sy
-
-	img = pyscreenshot.grab(bbox=(sx, sy, x, y))
-	listener.stop()
-
-#GetImage
-img = None
-
-sx, sy = (0, 0)
-
-listener = Listener(on_click=on_click)
-listener.start()
-listener.join()
-
-#Postproces image
-if args.greyscale:
-	img = GreyScale(img)
-if args.medianfilter:
-	img = Medianfilter(img)
-if args.sharp:
-	img = Sharpen(img)
-if args.threshold:
-	img = Threshold(img)
+#Postproces Image
+def PostProces(img):
+	global args
+	if args.greyscale:
+		img = GreyScale(img)
+	if args.medianfilter:
+		img = Medianfilter(img)
+	if args.sharp:
+		img = Sharpen(img)
+	if args.threshold:
+		img = Threshold(img)
+	return img
 
 #Show image
-if args.show:
-	img.show()
+def Show(img):
+	global args
+	if args.show:
+		img.show()
 
-#OCR
-ocrOutput = pytesseract.image_to_string(img, config = args.config, lang = args.lang)
+def OCR(img):
+	global args
+	return pytesseract.image_to_string(img, config = args.config, lang = args.lang)
 
+def Regex(ocrOutput):
+	global args
+	if args.regexreplace != "":
+		ocrOutput = re.sub(args.regexreplace, args.regexreplacestring, ocrOutput)
 
-#if you want to add some string procesing do it here
+	if args.regexfindall != "":
+		ocrOutput = "\n".join(re.findall(args.regexfindall, ocrOutput))
 
-#Save to clipboard
-if args.print:
-	print(ocrOutput)
-xerox.copy(ocrOutput, xsel=True)
+	return ocrOutput
+
+def Rest(img, ocrOutput):
+	#Interprpret
+	if args.interpreter != "":
+		os.system(args.interpreter + " " + ocrOutput)
+
+	#Save output
+	if args.save != "":
+		with open(args.save, "w") as f:
+			f.write(ocrOutput)
+
+	#print
+	if args.print:
+		print(ocrOutput)
+
+	#Save to clipboard
+	if args.clipboard:
+		xerox.copy(ocrOutput, xsel=True)
+
+#Get screenshot
+img = MakeScreenShoot(args.colour, args.opacity)
+
+#image procesing
+img = PostProces(img)
+Show(img)
+
+#string procesing
+ocrOutput = OCR(img)
+ocrOutput = Regex(ocrOutput)
+
+#Rest
+Rest(img, ocrOutput)
