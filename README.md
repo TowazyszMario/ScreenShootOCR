@@ -5,7 +5,7 @@ ScreenShootOCR is a Pythons script that integrates tesseract optical recogniton 
 ## Installation
 Clone this repository
 ```bash
-git clone 
+git clone https://github.com/WellIDKRealy/ScreenShootOCR.git
 ```
 Get inside 
 ```bash
@@ -13,8 +13,20 @@ cd ScreenShootOCR
 ```
 Install python3 depedencies
 ```bash
-pip install -r requirements.txt 
+pip3 install -r requirements.txt 
 ```
+Install tesseract and language for it
+```bash
+#Example instalation commands
+#arch linux based
+sudo pacman -S tesseract
+sudo pacman -S tesseract-data-eng #english language pack
+
+#debian based
+sudo apt-get install tesseract-ocr
+sudo apt-get install tesseract-eng #english language pack
+```
+
 # IMPORTANT
 Please make sure that xclip is installed! otherwise copy to clipborad wont work.
 ```bash
@@ -33,6 +45,10 @@ yum install xclip
 Take screenshot and copy OCR to clipboard.
 ```bash
 ssocr
+```
+Take screenshot and copy OCR to clipboard with specified language.
+```bash
+ssocr -l de #german as recogniton language
 ```
 Take screenshot and save OCR output
 ```bash
