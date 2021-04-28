@@ -57,11 +57,11 @@ ssocr
 ```
 Take screenshot and copy OCR to clipboard with specified language.
 ```bash
-ssocr -l de #german as recogniton language
+ssocr -l de #set recogniton language to german
 ```
 Take screenshot and save OCR output
 ```bash
-ssocr -sy PATHTOFILE
+ssocr -sv PATHTOFILE
 ```
 
 Show screenshoted img after processing
