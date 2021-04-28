@@ -26,6 +26,15 @@ sudo pacman -S tesseract-data-eng #english language pack
 sudo apt-get install tesseract-ocr
 sudo apt-get install tesseract-eng #english language pack
 ```
+Install qt5
+```bash
+#Example instalation commands
+#arch linux based
+sudo pacman -S qt5
+
+#debian based(im not sure about that)
+sudo apt-get install qt5
+```
 
 # IMPORTANT
 Please make sure that xclip is installed! otherwise copy to clipborad wont work.
