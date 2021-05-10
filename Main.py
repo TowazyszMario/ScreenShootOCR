@@ -118,7 +118,7 @@ img = PostProces(img)
 Show(img)
 
 #string procesing
-ocrOutput = OCR(img)
+ocrOutput = OCR(img).strip()
 ocrOutput = Regex(ocrOutput)
 
 #Rest
